@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import compensation.onlineshop.model.BankAccountReport;
-import compensation.onlineshop.model.MoneyOrder;
 
 public class BankServiceImpl implements IBankService {
 
