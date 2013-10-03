@@ -7,7 +7,7 @@ import org.github.ggeorgovassilis.compensation.onlineshop.model.BankAccountRepor
 import org.github.ggeorgovassilis.compensation.onlineshop.services.BankOperation.OPCODE;
 
 public class BankingCompensationAdvice implements IBankService,
-		CompensationAdvice {
+		CompensationAdvice<IBankService> {
 
 	IBankService target;
 	CompensationManager cm;
@@ -56,6 +56,16 @@ public class BankingCompensationAdvice implements IBankService,
 	public void rollback(Operation operation) {
 		BankOperation op = (BankOperation) operation;
 		op.undo();
+	}
+
+	@Override
+	public void setTarget(IBankService target) {
+		this.target = target;
+	}
+
+	@Override
+	public IBankService getTarget() {
+		return target;
 	}
 
 }

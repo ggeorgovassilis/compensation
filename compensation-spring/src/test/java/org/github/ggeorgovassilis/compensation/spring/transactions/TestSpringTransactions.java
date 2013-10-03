@@ -1,10 +1,14 @@
 package org.github.ggeorgovassilis.compensation.spring.transactions;
 
+import java.util.concurrent.atomic.AtomicReference;
+
 import javax.annotation.Resource;
 
 import org.github.ggeorgovassilis.compensation.api.CompensationManager;
 import org.github.ggeorgovassilis.compensation.spring.transactions.compensation.BankServiceCompensationAdvice;
 import org.github.ggeorgovassilis.compensation.spring.transactions.service.BankService;
+import org.github.ggeorgovassilis.compensation.spring.transactions.service.ExceptionOnPurpose;
+import org.github.ggeorgovassilis.compensation.spring.transactions.service.IntegrationTestCase;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +36,9 @@ public class TestSpringTransactions {
 	@Autowired
 	private CompensationManager compensationManager;
 
+	@Autowired
+	private IntegrationTestCase integrationTestCase;
+
 	@Test
 	@Transactional
 	public void testLocalBankService() {
@@ -58,6 +65,7 @@ public class TestSpringTransactions {
 	@Test
 	@Transactional
 	public void testRemoteBankService() {
+		compensationManager.startNewAndActivate();
 		AccountStatement remoteAccount = remoteService.createNewAccount();
 		remoteAccount = remoteService.deposit(remoteAccount.getAccountNumber(),
 				100);
@@ -74,21 +82,19 @@ public class TestSpringTransactions {
 		remoteAccount = remoteService.queryBalance(remoteAccount
 				.getAccountNumber());
 		assertEquals(101, remoteAccount.getBalance());
+		compensationManager.commit(compensationManager.getActiveTransaction());
 	}
 
-	private void setupCompensation() {
-		internationalService = compensationManager.createProxyFor(
-				internationalService, new Class[] { BankService.class },
-				new BankServiceCompensationAdvice(internationalService,
-						compensationManager));
-	}
-
+	/**
+	 * Tests a mix of local transactions and compensations. Performs some
+	 * operations on both local and remote services, then rolls back only the
+	 * remote service.
+	 */
 	@Test
 	@Transactional
 	public void testInternationalBankService() {
-		setupCompensation();
 		compensationManager.startNewAndActivate();
-		
+
 		AccountStatement localAccount = localService.createNewAccount();
 		AccountStatement remoteAccount = remoteService.createNewAccount();
 		remoteAccount = internationalService.deposit(
@@ -104,15 +110,43 @@ public class TestSpringTransactions {
 		remoteAccount = internationalService.queryBalance(remoteAccount
 				.getAccountNumber());
 		assertEquals(70, remoteAccount.getBalance());
-		
-		compensationManager.rollback(compensationManager.getActiveTransaction());
-		
-		localAccount = localService.queryBalance(localAccount.getAccountNumber());
-		assertEquals(0, localAccount.getBalance());
 
-		remoteAccount = remoteService.queryBalance(remoteAccount.getAccountNumber());
-		assertEquals(0, remoteAccount.getBalance());
+		compensationManager
+				.rollback(compensationManager.getActiveTransaction());
 
+		remoteAccount = remoteService.queryBalance(remoteAccount
+				.getAccountNumber());
+		assertNull(remoteAccount);
 	}
 
+	@Test
+	public void testInternationalBankServiceRollback() throws Exception {
+		final AtomicReference<Exception> exception = new AtomicReference<Exception>();
+		Thread thread = new Thread() {
+			@Override
+			public void run() {
+				try {
+					synchronized (integrationTestCase) {
+						compensationManager.startNewAndActivate();
+						integrationTestCase.testLocalAndRemoteService();
+					}
+				} catch (Exception e) {
+					compensationManager.rollback(compensationManager.getActiveTransaction());
+					exception.set(e);
+				}
+			}
+		};
+		thread.start();
+		thread.join();
+		if (!(exception.get() instanceof ExceptionOnPurpose))
+			throw new Exception(exception.get());
+		synchronized (integrationTestCase) {
+			assertNull(localService
+					.queryBalance(integrationTestCase.localAccount
+							.getAccountNumber()));
+			assertNull(remoteService
+					.queryBalance(integrationTestCase.remoteAccount
+							.getAccountNumber()));
+		}
+	}
 }

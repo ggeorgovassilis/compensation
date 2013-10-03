@@ -2,6 +2,7 @@ package org.github.ggeorgovassilis.compensation.spring.transactions.service;
 
 import javax.annotation.Resource;
 
+import org.github.ggeorgovassilis.compensation.spring.Compensable;
 import org.github.ggeorgovassilis.compensation.spring.transactions.AccountStatement;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

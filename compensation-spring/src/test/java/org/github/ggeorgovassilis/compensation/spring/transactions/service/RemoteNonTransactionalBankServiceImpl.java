@@ -3,6 +3,7 @@ package org.github.ggeorgovassilis.compensation.spring.transactions.service;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.github.ggeorgovassilis.compensation.spring.Compensable;
 import org.github.ggeorgovassilis.compensation.spring.transactions.dao.AccountDao;
 import org.github.ggeorgovassilis.compensation.spring.transactions.model.Account;
 import org.springframework.stereotype.Service;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
  * @author g.georgovassilis@gmail.com
  *
  */
+@Compensable("BankingCompensationAdvice")
 @Service("RemoteBankService")
 public class RemoteNonTransactionalBankServiceImpl extends AbstractBankServiceImpl{
 
@@ -74,7 +76,7 @@ public class RemoteNonTransactionalBankServiceImpl extends AbstractBankServiceIm
 		
 		@Override
 		public void delete(String accountNr) {
-			throw new RuntimeException("Not implemented");
+			db.remove(accountNr);
 		}
 		
 		@Override

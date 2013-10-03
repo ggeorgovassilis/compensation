@@ -6,13 +6,25 @@ import org.github.ggeorgovassilis.compensation.api.Operation;
 import org.github.ggeorgovassilis.compensation.spring.transactions.AccountStatement;
 import org.github.ggeorgovassilis.compensation.spring.transactions.service.BankService;
 
-public class BankServiceCompensationAdvice implements BankService, CompensationAdvice{
+public class BankServiceCompensationAdvice implements BankService, CompensationAdvice<BankService>{
 
-	private BankService target;
 	private CompensationManager cm;
+	private BankService target;
 	
-	public BankServiceCompensationAdvice(BankService target, CompensationManager cm){
+	@Override
+	public BankService getTarget(){
+		return target;
+	}
+	
+	@Override
+	public void setTarget(BankService target){
 		this.target = target;
+	}
+	
+	public BankServiceCompensationAdvice(){
+	}
+	
+	public BankServiceCompensationAdvice(CompensationManager cm){
 		this.cm = cm;
 	}
 	
@@ -27,40 +39,40 @@ public class BankServiceCompensationAdvice implements BankService, CompensationA
 
 	@Override
 	public boolean isManagedByThis(String accountNumber) {
-		return target.isManagedByThis(accountNumber);
+		return getTarget().isManagedByThis(accountNumber);
 	}
 
 	@Override
 	public AccountStatement queryBalance(String accountNumber) {
-		return target.queryBalance(accountNumber);
+		return getTarget().queryBalance(accountNumber);
 	}
 
 	@Override
 	public AccountStatement withdraw(String accountNumber, int amount) {
-		WithdrawOperation op = new WithdrawOperation(accountNumber, amount, target, this);
+		WithdrawOperation op = new WithdrawOperation(accountNumber, amount, getTarget(), this);
 		cm.registerOperation(op, cm.getActiveTransaction());
-		return target.withdraw(accountNumber, amount);
+		return getTarget().withdraw(accountNumber, amount);
 	}
 
 	@Override
 	public AccountStatement deposit(String accountNumber, int amount) {
-		DepositOperation op = new DepositOperation(accountNumber, amount, target, this);
+		DepositOperation op = new DepositOperation(accountNumber, amount, getTarget(), this);
 		cm.registerOperation(op, cm.getActiveTransaction());
-		return target.deposit(accountNumber, amount);
+		return getTarget().deposit(accountNumber, amount);
 	}
 
 	@Override
 	public AccountStatement move(String accountNumberFrom,
 			String accountNumberTo, int amount) {
-		MoveOperation op = new MoveOperation(accountNumberFrom, accountNumberTo, amount, target, this);
+		MoveOperation op = new MoveOperation(accountNumberFrom, accountNumberTo, amount, getTarget(), this);
 		cm.registerOperation(op, cm.getActiveTransaction());
-		return target.move(accountNumberFrom, accountNumberTo, amount);
+		return getTarget().move(accountNumberFrom, accountNumberTo, amount);
 	}
 
 	@Override
 	public AccountStatement createNewAccount() {
-		AccountStatement stmt = target.createNewAccount();
-		CreateOperation op = new CreateOperation(stmt.getAccountNumber(), target, this);
+		AccountStatement stmt = getTarget().createNewAccount();
+		CreateOperation op = new CreateOperation(stmt.getAccountNumber(), getTarget(), this);
 		cm.registerOperation(op, cm.getActiveTransaction());
 		return stmt;
 	}
@@ -68,7 +80,11 @@ public class BankServiceCompensationAdvice implements BankService, CompensationA
 	@Override
 	public void deleteAccount(String accountNumber) {
 		//cannot be undone
-		target.deleteAccount(accountNumber);
+		getTarget().deleteAccount(accountNumber);
+	}
+
+	public void setCompensationManager(CompensationManager manager) {
+		this.cm = manager;
 	}
 
 }

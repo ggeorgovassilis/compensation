@@ -19,5 +19,6 @@ public interface CompensationManager {
 
     <T> T createProxyFor(T target, Class<?>[] proxyInterfaces,
 	    CompensationAdvice advice);
+    
 
 }

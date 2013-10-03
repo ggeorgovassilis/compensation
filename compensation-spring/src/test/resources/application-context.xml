@@ -46,5 +46,13 @@
 	</bean>
 
 	<bean id="compensationManager" class="org.github.ggeorgovassilis.compensation.impl.CompensationManagerImpl"/>
+	
+	<bean id="BankingCompensationAdvice" class="org.github.ggeorgovassilis.compensation.spring.transactions.compensation.BankServiceCompensationAdvice">
+		<property name="compensationManager" ref="compensationManager"/>
+	</bean>
+	
+	<bean class="org.github.ggeorgovassilis.compensation.spring.CompensableBeanPostProcessor">
+		<property name="compensationManager" ref="compensationManager"/>
+	</bean>
 
 </beans>
