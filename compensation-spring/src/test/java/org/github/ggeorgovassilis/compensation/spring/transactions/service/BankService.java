@@ -1,6 +1,8 @@
-package org.github.ggeorgovassilis.compensation.spring.transactions;
+package org.github.ggeorgovassilis.compensation.spring.transactions.service;
 
-public interface IBankService {
+import org.github.ggeorgovassilis.compensation.spring.transactions.AccountStatement;
+
+public interface BankService {
 
 	AccountStatement queryBalance(String accountNumber);
 	AccountStatement withdraw(String accountNumber, int amount);
