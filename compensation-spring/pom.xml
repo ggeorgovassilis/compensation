@@ -12,9 +12,8 @@
 
 	<properties>
 		<org.springframework-version>3.2.4.RELEASE</org.springframework-version>
-		<org.aspectj-version>1.6.10</org.aspectj-version>
 		<org.slf4j-version>1.6.6</org.slf4j-version>
-		<hibernate-version>4.1.9.Final</hibernate-version>
+		<hibernate-version>4.2.6.Final</hibernate-version>
 		<spring-data-jpa.version>1.4.1.RELEASE</spring-data-jpa.version>
 		<junit.version>4.7</junit.version>
 		<hsqldb.version>2.3.0</hsqldb.version>
@@ -50,8 +49,32 @@
 			</plugin>
 		</plugins>
 	</build>
+
+
 	<dependencies>
 		<!-- Spring -->
+		<dependency>
+			<groupId>org.github.ggeorgovassilis.compensation</groupId>
+			<artifactId>compensation-lib</artifactId>
+			<version>${compensation.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>${org.slf4j-version}</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-log4j12</artifactId>
+			<version>${org.slf4j-version}</version>
+			<scope>test</scope>
+		</dependency>
+
+
+
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-context</artifactId>
@@ -63,6 +86,7 @@
 					<artifactId>commons-logging</artifactId>
 				</exclusion>
 			</exclusions>
+			<scope>test</scope>
 		</dependency>
 
 		<dependency>
@@ -72,55 +96,46 @@
 			<scope>test</scope>
 		</dependency>
 
-		<!-- AspectJ -->
-		<dependency>
-			<groupId>org.aspectj</groupId>
-			<artifactId>aspectjrt</artifactId>
-			<version>${org.aspectj-version}</version>
-			<scope>test</scope>
-		</dependency>
-
-		<!-- @Inject -->
-		<dependency>
-			<groupId>javax.inject</groupId>
-			<artifactId>javax.inject</artifactId>
-			<version>1</version>
-			<scope>test</scope>
-		</dependency>
-
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<version>${junit.version}</version>
 			<scope>test</scope>
 		</dependency>
+
 		<dependency>
 			<groupId>org.hsqldb</groupId>
 			<artifactId>hsqldb</artifactId>
 			<version>${hsqldb.version}</version>
 			<scope>test</scope>
 		</dependency>
+
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-tx</artifactId>
 			<version>${org.springframework-version}</version>
 			<scope>test</scope>
 		</dependency>
+
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-test</artifactId>
 			<version>${org.springframework-version}</version>
 			<scope>test</scope>
 		</dependency>
+
 		<dependency>
 			<groupId>org.hibernate.javax.persistence</groupId>
 			<artifactId>hibernate-jpa-2.0-api</artifactId>
 			<version>${hibernate-jpa.version}</version>
+			<scope>test</scope>
 		</dependency>
+
 		<dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-entitymanager</artifactId>
 			<version>${hibernate-version}</version>
+			<scope>test</scope>
 		</dependency>
 	</dependencies>
 </project>

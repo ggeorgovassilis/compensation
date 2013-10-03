@@ -20,15 +20,16 @@
      ">
 
 	<context:annotation-config />
+	<tx:annotation-driven />
 	<context:component-scan
 		base-package="org.github.ggeorgovassilis.compensation.spring.transactions" />
-	<tx:annotation-driven />
+	<data:repositories
+		base-package="org.github.ggeorgovassilis.compensation.spring.transactions.dao" />
+	<jdbc:embedded-database id="dataSource" type="HSQL" />
 
 	<bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
 		<property name="entityManagerFactory" ref="entityManagerFactory" />
 	</bean>
-	<jdbc:embedded-database id="dataSource" type="HSQL" />
-
 
 	<bean id="entityManagerFactory"
 		class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
@@ -41,10 +42,9 @@
 		</property>
 		<property name="persistenceUnitName"
 			value="org.github.ggeorgovassilis.compensation.spring.transactions.model" />
+		<property name="packagesToScan" value="org.github.ggeorgovassilis.compensation.spring.transactions.model"/>
 	</bean>
 
-
-	<data:repositories
-		base-package="org.github.ggeorgovassilis.compensation.spring.transactions.dao" />
+	<bean id="compensationManager" class="org.github.ggeorgovassilis.compensation.impl.CompensationManagerImpl"/>
 
 </beans>
